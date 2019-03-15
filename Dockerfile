@@ -1,12 +1,10 @@
 FROM google/cloud-sdk:alpine
 
-RUN apk add --update make ca-certificates openssl
-
-RUN update-ca-certificates
+RUN apk add --update make ca-certificates openssl && update-ca-certificates && rm /var/cache/apk/*
 
 # Installing missing kubectl
-RUN gcloud components install --quiet kubectl
+RUN gcloud components install --quiet kubectl && rm -rf /google-cloud-sdk/.install/.backup/ && rm /google-cloud-sdk/bin/kubectl.*
 
 # Getting Helm
 RUN curl https://raw.githubusercontent.com/helm/helm/master/scripts/get > gethelm.sh
-RUN bash gethelm.sh
+RUN bash gethelm.sh && rm gethelm.sh
