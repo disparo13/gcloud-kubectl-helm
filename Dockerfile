@@ -7,4 +7,4 @@ RUN gcloud components install --quiet kubectl alpha beta gsutil cloud_sql_proxy 
 
 # Getting Helm
 RUN curl https://raw.githubusercontent.com/helm/helm/master/scripts/get > gethelm.sh
-RUN bash gethelm.sh && rm gethelm.sh
+RUN bash gethelm.sh -v 2.14.3 && rm gethelm.sh
