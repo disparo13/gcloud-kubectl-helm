@@ -1,0 +1,31 @@
+FROM google/cloud-sdk:alpine
+
+# CONSIDER UPDATING TO HELM V.3 !!!!
+
+LABEL description="As Helm v.2 became deprecated in Nov 2020, this is THE LAST update to the v.2 container types"
+
+RUN apk add --update --no-cache make ca-certificates openssl && update-ca-certificates
+
+# Installing missing kubectl
+RUN gcloud components install --quiet alpha beta gsutil cloud_sql_proxy && rm -rf /google-cloud-sdk/.install/.backup/
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl && \
+    chmod +x ./kubectl && ./kubectl version --client && \
+    mv ./kubectl /usr/local/bin/ && rm /usr/local/bin/docker
+
+# Getting Helm
+RUN wget https://get.helm.sh/helm-v2.17.0-linux-amd64.tar.gz
+RUN tar xzf helm-v2.17.0-linux-amd64.tar.gz
+RUN mv ./linux-amd64/helm /usr/local/bin/ && mv ./linux-amd64/tiller /usr/local/bin/
+RUN rm -f helm-v2.17.0-linux-amd64.tar.gz && rm -rf ./linux-amd64
+RUN helm init -c
+
+#Installing plugins
+
+# for GCS support
+RUN helm plugin install https://github.com/hayorov/helm-gcs --version 0.2.2
+
+# for Github support
+RUN helm plugin install --version master https://github.com/sagansystems/helm-github.git
+
+#for Amazon S3 support
+RUN helm plugin install https://github.com/hypnoglow/helm-s3.git
